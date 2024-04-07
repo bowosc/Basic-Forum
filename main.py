@@ -1,6 +1,7 @@
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from datetime import timedelta, datetime
 from flask_sqlalchemy import SQLAlchemy
+import math
 
 app = Flask(__name__)
 app.secret_key = ("goon")
@@ -14,7 +15,7 @@ db = SQLAlchemy(app)
 
 #TODO
 '''
-- "next page" viewing
+- next page
 - likes/dislikes for posts
 - tags and stuff, post sorting
 - user profile? 
@@ -115,10 +116,11 @@ def post():
 
 @app.route("/feed", methods=['GET', 'POST'])
 def feed():
-    shownposts = posts.query.order_by(posts.date.desc()).limit(10).all()
-    return render_template("feed.html", shownposts=shownposts) 
+    postcount = posts.query.order_by(posts.date.desc()).count()
+    postcount = int(math.ceil(postcount / 10.0)) - 1 # get the most recent page of posts
+    return redirect(url_for("feedposts", page=postcount))
 
-@app.route("/feed/<page>", methods=['GET']) # fix the stupid css idk why its doin that
+@app.route("/feed/<page>", methods=['GET'])
 def feedposts(page):
     try:
         intpage = int(page)
@@ -127,9 +129,8 @@ def feedposts(page):
         return redirect(url_for("feed"))
     
     offset = (10 * intpage) #10 posts per page makes money for days
-    shownposts = posts.query.order_by(posts.date.desc()).offset(offset).limit(10)
-
-    return render_template("feed.html", shownposts=shownposts)
+    shownposts = posts.query.order_by(posts.date.asc()).offset(offset).limit(10)
+    return render_template("feed.html", shownposts=shownposts, intpage=intpage)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
