@@ -1,0 +1,63 @@
+div .center {
+    text-align: center;
+    margin: auto;
+    width: 40%;
+    height: 100%;
+    background: rgb(194, 247, 255);
+    outline: rgb(153, 234, 252);
+    outline-width: 5px;
+}
+
+div .feedbackdrop {
+    text-align: center;
+    margin: auto;
+    width: 70%;
+    height: auto;
+    background: rgb(224, 249, 252);
+}
+
+div .post {
+    margin-top: 10px;
+    text-align: left;
+    outline: 3px solid rgb(255, 255, 255);
+    width: auto;
+}
+
+div .date {
+    font-style: italic;
+    font-size: small;
+}
+
+div .name {
+    font-style: normal;
+    font-size: medium;
+    font-weight: bold;
+}
+
+div .content {
+    text-indent: 5%;
+    font-style: normal;
+    font-size: medium;
+}
+
+.nameincorner{
+    margin:auto;
+    position:absolute;
+    text-align: center;
+    width: 200px;
+    height: 30px;
+    top:0;
+    right:0;
+    background: rgb(136, 245, 158);
+    outline: rgb(41, 173, 98);
+    outline-width: 5px;
+   }
+
+.flashed {
+    width: 100%;
+    background: rgb(216, 255, 110);
+    height: 26px;
+    text-align: center;
+
+}
+   
