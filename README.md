@@ -1,3 +1,1 @@
-# Boring basic forum
-
-Just practice code! 
+# Basic Forum
