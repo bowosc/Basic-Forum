@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import math
 
 app = Flask(__name__)
-app.secret_key = ("goon")
+app.secret_key = ("Ilovemysecretkey")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.sqlite3'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -19,7 +19,7 @@ db = SQLAlchemy(app)
 - likes/dislikes for posts
 - tags and stuff, post sorting
 - user profile? 
-- better post ui, user ui
+- better post creation ui, post viewing ui
 '''
 
 class users(db.Model):
@@ -130,7 +130,9 @@ def feedposts(page):
     
     offset = (10 * intpage) #10 posts per page makes money for days
     shownposts = posts.query.order_by(posts.date.asc()).offset(offset).limit(10)
-    return render_template("feed.html", shownposts=shownposts, intpage=intpage)
+    backpage = intpage - 1  # currently unused
+    forwardpage = intpage + 1  # currently unused
+    return render_template("feed.html", shownposts=shownposts, intpage=intpage, backpage=backpage, forwardpage=forwardpage)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
