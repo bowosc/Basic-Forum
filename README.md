@@ -1,2 +1,3 @@
-# social-media-but-epic
- social media but epic
+# Boring basic forum
+
+Just practice code! 
