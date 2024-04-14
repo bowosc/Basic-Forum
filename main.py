@@ -15,7 +15,8 @@ db = SQLAlchemy(app)
 
 #TODO
 '''
-- combine post maker and post viewer into a popup kinda thing
+- user password, username, email verification stuff
+- forum moderation
 - likes/dislikes for posts
 - user profile? 
 - search through posts
@@ -102,32 +103,16 @@ def home():
         username = session['user']
     return(render_template("main.html", username=username))
 
-@app.route("/post", methods=['GET', 'POST'])
-def post():
-    if "user" not in session:
-        flash("You must log in to post!")
-        return redirect(url_for("login"))
-    else:
-        username = session['user']
 
-    if request.method == 'POST':
-        newpost = posts(session['user'], request.form.get('content'), request.form.get('imglink'), round_seconds(datetime.now()))
-        db.session.add(newpost) 
-        db.session.commit()
-        print(session['user'])
-        print("made a post")
-        flash("Post sucessfully created!")
-        return redirect(url_for("feed"))
-    return render_template("post.html", username=username)
-
-@app.route("/feed", methods=['GET', 'POST']) # add a fricking next page button
+@app.route("/feed", methods=['GET', 'POST']) 
 def feed():
     postcount = posts.query.order_by(posts.date.desc()).count()
     postcount = int(math.ceil(postcount / 10.0)) - 1 # get the most recent page of posts
     return redirect(url_for("feedposts", page=postcount))
 
-@app.route("/feed/<page>", methods=['GET'])
+@app.route("/feed/<page>", methods=['GET', 'POST'])
 def feedposts(page):
+    
     try:
         intpage = int(page)
     except ValueError:
@@ -138,9 +123,31 @@ def feedposts(page):
         return redirect(url_for("feedposts", page=0))
     offset = (10 * intpage) #10 posts per page makes money for days
     shownposts = posts.query.order_by(posts.date.asc()).offset(offset).limit(10)
-    backpage = intpage - 1  # currently unused
-    forwardpage = intpage + 1  # currently unused
-    return render_template("feed.html", shownposts=shownposts, intpage=intpage, backpage=backpage, forwardpage=forwardpage)
+    backpage = intpage - 1  # idk if this is actually used
+    forwardpage = intpage + 1  
+
+    activepage = (int(math.ceil(posts.query.order_by(posts.date.desc()).count() / 10.0)) - 1)
+    if intpage == activepage: #if this is the page with the most recent posts :) 
+        mostrecent = True
+    elif intpage > activepage:
+        flash("Do not dwell on the future. Turn your head and live fully in the present.")
+        return redirect(url_for("feed"))
+    else:
+        mostrecent = False
+
+    if request.method == 'POST':
+        if "user" not in session:
+            flash("You must log in to post!")
+            return redirect(url_for("login"))
+        else:
+            username = session['user']
+        newpost = posts(session['user'], request.form.get('content'), request.form.get('imglink'), round_seconds(datetime.now()))
+        db.session.add(newpost) 
+        db.session.commit()
+        print("post created by {userr}".format(userr=username))
+        return redirect(url_for("feed"))
+    
+    return render_template("feed.html", shownposts=shownposts, intpage=intpage, backpage=backpage, forwardpage=forwardpage, mostrecent=mostrecent)
 
 
 @app.route('/pageturn', methods=['GET', 'POST'])

@@ -8,6 +8,23 @@ div .center {
     outline-width: 5px;
 }
 
+.imglink {
+    width: 60%;
+    margin-left: 10px;
+    margin-bottom: 6px;
+}
+
+.createdpostcontent {
+    width:95%;
+    margin: 0 auto;
+}
+
+.postsubmit {
+    width:95%;
+    margin-bottom: 10px;
+    margin-left: 2.5%;
+}
+
 div .feedbackdrop {
     text-align: center;
     margin: auto;
@@ -36,7 +53,8 @@ div .name {
 
 div .content {
     vertical-align: top;
-    text-indent: 5% each-line;
+    margin-top: 6px;
+    margin-left: 10px;
     font-style: normal;
     font-size: medium;
 }
@@ -46,7 +64,6 @@ div .content {
     text-align: right;
   
     margin-right: 15px;
-    margin-left:10px;
     margin-bottom: 6px;
     height: 220px;
 }

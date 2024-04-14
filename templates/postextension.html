@@ -1,0 +1,12 @@
+<div class="post" style="background: rgb(206, 254, 208);">
+    <h3 style="text-align: center; margin-top: 6px;">
+        Create new post
+    </h3>
+        <p style="margin-left: 2.5%;">Author: {{session.user}} (you!)</p>
+    <form action="#" method="post">
+        <p style="margin-left: 2.5%;"> Attach image from link: <input class="imglink" autocomplete="off" type="link" name="imglink"/></p>
+        <div style="display: flex; justify-content: center;"><textarea class="createdpostcontent" id="textarea" autocomplete="off" placeholder="Write something here!" name="content" rows="6" maxlength="4000"></textarea></div>
+        <p></p>
+        <p><input class="postsubmit" type="submit" name="submit" /></p>
+    </form>
+</div>

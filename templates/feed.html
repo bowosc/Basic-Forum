@@ -1,5 +1,5 @@
 {% extends "base.html"%}
-{% block title %}Home Page{% endblock %}
+{% block title %}Forum{% endblock %}
 {% block content %}
     <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -21,16 +21,30 @@
                 <div class="date">{{ post.date }}</div>
             </div>
             {% endfor %}
+
+            {% if mostrecent %}
+                {% if "user" in session %}
+                    {% with data=data %}
+                        {% include "postextension.html"%}
+                    {% endwith %}
+                {% endif %}
+            {% endif %}
+
         </div>
+        {% if not mostrecent %}
         <div class="pageturn">
             <form action="/pageturn" method="post">
                 <button name="nextpage" type="submit"> Next Page </button>
             </form>
         </div>
+        {% endif %}
+        {% if intpage != 0%}
         <div class="backpageturn">
             <form action="/backpageturn" method="post">
                 <button name="backpage" type="submit"> Previous Page </button>
             </form>
         </div>
+        {% endif %}
     </body>
+
 {% endblock %}
