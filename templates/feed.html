@@ -12,8 +12,12 @@
             {% for post in shownposts %}
             <div class="post">
                 <div class="name">{{ post.op }}</div>
-                <img src="{{ post.imglink }}" onerror="this.onerror=null;" this.src='' alt="">
-                <div class="content">{{ post.content }}</div>
+                <div class="content">
+                    <p>
+                        <img class="postimg" src="{{ post.imglink }}" onerror="this.style.display='none'" this.src='' alt="">
+                        {{ post.content }}
+                    </p>
+                </div>
                 <div class="date">{{ post.date }}</div>
             </div>
             {% endfor %}

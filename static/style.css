@@ -35,9 +35,20 @@ div .name {
 }
 
 div .content {
+    vertical-align: top;
     text-indent: 5% each-line;
     font-style: normal;
     font-size: medium;
+}
+
+.postimg {
+    vertical-align: top;
+    text-align: right;
+  
+    margin-right: 15px;
+    margin-left:10px;
+    margin-bottom: 6px;
+    height: 220px;
 }
 
 .pagenum{

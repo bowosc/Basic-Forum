@@ -17,8 +17,8 @@ db = SQLAlchemy(app)
 '''
 - combine post maker and post viewer into a popup kinda thing
 - likes/dislikes for posts
-- tags and stuff, post sorting
 - user profile? 
+- search through posts
 - better post creation ui, post viewing ui
 '''
 
