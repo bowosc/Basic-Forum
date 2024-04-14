@@ -35,7 +35,7 @@ div .name {
 }
 
 div .content {
-    text-indent: 5%;
+    text-indent: 5% each-line;
     font-style: normal;
     font-size: medium;
 }
@@ -74,3 +74,14 @@ div .content {
 
 }
    
+div .pageturn {
+    float:right;
+    right:0;
+    position:relative;
+}
+
+div .backpageturn {
+    float:left;
+    left:0;
+    position:relative;
+}

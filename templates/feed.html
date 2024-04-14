@@ -12,11 +12,21 @@
             {% for post in shownposts %}
             <div class="post">
                 <div class="name">{{ post.op }}</div>
-                <div class="date">{{ post.imglink }}</div>
+                <img src="{{ post.imglink }}" onerror="this.onerror=null;" this.src='' alt="">
                 <div class="content">{{ post.content }}</div>
                 <div class="date">{{ post.date }}</div>
             </div>
             {% endfor %}
+        </div>
+        <div class="pageturn">
+            <form action="/pageturn" method="post">
+                <button name="nextpage" type="submit"> Next Page </button>
+            </form>
+        </div>
+        <div class="backpageturn">
+            <form action="/backpageturn" method="post">
+                <button name="backpage" type="submit"> Previous Page </button>
+            </form>
         </div>
     </body>
 {% endblock %}

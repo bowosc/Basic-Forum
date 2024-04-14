@@ -15,7 +15,7 @@ db = SQLAlchemy(app)
 
 #TODO
 '''
-- next page
+- combine post maker and post viewer into a popup kinda thing
 - likes/dislikes for posts
 - tags and stuff, post sorting
 - user profile? 
@@ -63,6 +63,7 @@ class tagmap(db.Model):
         self.post_id = post_id
         self.tag_id = tag_id'''
 
+
 def verifyregister(uname, upass, uemail):
     '''
     Checks if password, username, email strings fit within 
@@ -88,7 +89,12 @@ def verifyregister(uname, upass, uemail):
         return False
     
     print("verified new user")
-            
+
+def round_seconds(obj: datetime) -> datetime:
+    if obj.microsecond >= 500_000:
+        obj += timedelta(seconds=1)
+    return obj.replace(microsecond=0)
+
 @app.route("/")
 def home():
     username = "Not signed in"
@@ -105,7 +111,7 @@ def post():
         username = session['user']
 
     if request.method == 'POST':
-        newpost = posts(session['user'], request.form.get('content'), request.form.get('imglink'), datetime.now())
+        newpost = posts(session['user'], request.form.get('content'), request.form.get('imglink'), round_seconds(datetime.now()))
         db.session.add(newpost) 
         db.session.commit()
         print(session['user'])
@@ -114,7 +120,7 @@ def post():
         return redirect(url_for("feed"))
     return render_template("post.html", username=username)
 
-@app.route("/feed", methods=['GET', 'POST'])
+@app.route("/feed", methods=['GET', 'POST']) # add a fricking next page button
 def feed():
     postcount = posts.query.order_by(posts.date.desc()).count()
     postcount = int(math.ceil(postcount / 10.0)) - 1 # get the most recent page of posts
@@ -128,11 +134,29 @@ def feedposts(page):
         flash("Try it with an integer!")
         return redirect(url_for("feed"))
     
+    if intpage < 0:
+        return redirect(url_for("feedposts", page=0))
     offset = (10 * intpage) #10 posts per page makes money for days
     shownposts = posts.query.order_by(posts.date.asc()).offset(offset).limit(10)
     backpage = intpage - 1  # currently unused
     forwardpage = intpage + 1  # currently unused
     return render_template("feed.html", shownposts=shownposts, intpage=intpage, backpage=backpage, forwardpage=forwardpage)
+
+
+@app.route('/pageturn', methods=['GET', 'POST'])
+def pageturn():
+    banana = request.referrer
+    peeledbanana = banana.split("/")
+    page = (int(peeledbanana[4]) + 1) # https: /  / feed / {number}, 3 slashes
+    return redirect(url_for("feedposts", page=page))
+
+@app.route('/backpageturn', methods=['GET', 'POST'])
+def backpageturn():
+    banana = request.referrer
+    peeledbanana = banana.split("/")
+    page = (int(peeledbanana[4]) - 1) # https: /  / feed / {number}, 3 slashes
+    return redirect(url_for("feedposts", page=page))
+
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
