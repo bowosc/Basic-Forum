@@ -65,7 +65,7 @@ class tagmap(db.Model):
         self.tag_id = tag_id'''
 
 
-def verifyregister(uname, upass, uemail):
+def verifyregister(uname, upass, uemail): #this could be better
     '''
     Checks if password, username, email strings fit within 
     desired parameters, e.g. length.
@@ -92,6 +92,9 @@ def verifyregister(uname, upass, uemail):
     print("verified new user")
 
 def round_seconds(obj: datetime) -> datetime:
+    '''
+    just a feature that should probably be in datetime already, but i've gotta do it manually :(
+    '''
     if obj.microsecond >= 500_000:
         obj += timedelta(seconds=1)
     return obj.replace(microsecond=0)
@@ -121,12 +124,15 @@ def feedposts(page):
     
     if intpage < 0:
         return redirect(url_for("feedposts", page=0))
-    offset = (10 * intpage) #10 posts per page makes money for days
-    shownposts = posts.query.order_by(posts.date.asc()).offset(offset).limit(10)
+    
+    ppg = int(10) # posts per page
+
+    offset = (ppg * intpage)
+    shownposts = posts.query.order_by(posts.date.asc()).offset(offset).limit(ppg)
     backpage = intpage - 1  # idk if this is actually used
     forwardpage = intpage + 1  
 
-    activepage = (int(math.ceil(posts.query.order_by(posts.date.desc()).count() / 10.0)) - 1)
+    activepage = (int(math.ceil(posts.query.order_by(posts.date.desc()).count() / ppg)) - 1)
     if intpage == activepage: #if this is the page with the most recent posts :) 
         mostrecent = True
     elif intpage > activepage:
