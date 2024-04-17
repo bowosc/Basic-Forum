@@ -1,9 +1,7 @@
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from datetime import timedelta, datetime
 from flask_sqlalchemy import SQLAlchemy
-import math
-from email.message import EmailMessage
-
+import math, bcrypt
 
 app = Flask(__name__)
 app.secret_key = ("pretendthisisarealsecretkey")
@@ -69,7 +67,8 @@ class tagmap(db.Model):
 def verifyregister(uname, upass, uemail): #this could be better
     '''
     Checks if password, username, email strings fit within 
-    desired parameters, e.g. length. might do email verification too, not sure if its working rn
+    desired parameters, e.g. length. 
+    probably should be the function that hashes passwords, but isn't. don't look for password hashing here, it's in @app.route(/"register"). and login
     '''
     existinguser = users.query.filter_by(name=uname).first() 
     existingemail = users.query.filter_by(email=uemail).first()
@@ -78,9 +77,11 @@ def verifyregister(uname, upass, uemail): #this could be better
         flash("ur username or email already exists")
         return False
 
-    if all(x in uemail for x in [".", "@"]):
-        flash("that's not an email, stupid")
-        return False
+    if "." not in uemail:
+        if "@" not in uemail:
+            print(uemail)
+            flash("that's not an email, stupid")
+            return False
 
     if len(uname) < 4:
         flash("username must be at least 4 characters")
@@ -181,12 +182,12 @@ def login():
         founduser = users.query.filter_by(name=request.form.get('username')).first()
         foundpass = request.form['password'] # i think this is the same as request.form.get('password')
         if founduser:
-            if foundpass!=founduser.password:
-                flash("wrong password")
-                return redirect(url_for("home"))
-            else:
+            if bcrypt.checkpw(str.encode(foundpass), founduser.password):
                 session["user"] = founduser.name
                 flash("loggied in successfully")
+                return redirect(url_for("home"))
+            else:
+                flash("wrong password")
                 return redirect(url_for("home"))
         else:
             flash("no account found with that username")
@@ -207,18 +208,18 @@ def register():
         
         uname = request.form.get('username')
         uemail = request.form.get('email')
+        hashedupass = bcrypt.hashpw(str.encode(request.form.get('password')), bcrypt.gensalt())
 
         if verifyregister(uname, request.form.get('password'), uemail) == False:
             return redirect(url_for("home"))
-            
-        newuser = users(uname, uemail, request.form.get('password'))
+        
+        newuser = users(uname, uemail, hashedupass)
         db.session.add(newuser) #i'm in
         db.session.commit()
 
         currentuser = users.query.filter_by(name=newuser.name).first()
         session["user"] = currentuser.name #welcome to the sesh
         flash("loggied in, account created. welcome!")
-        print(currentuser)
 
         return redirect(url_for("home"))
     # else:
