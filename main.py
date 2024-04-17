@@ -2,9 +2,11 @@ from flask import Flask, redirect, url_for, render_template, request, session, f
 from datetime import timedelta, datetime
 from flask_sqlalchemy import SQLAlchemy
 import math
+from email.message import EmailMessage
+
 
 app = Flask(__name__)
-app.secret_key = ("Ilovemysecretkey")
+app.secret_key = ("pretendthisisarealsecretkey")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.sqlite3'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -17,8 +19,8 @@ db = SQLAlchemy(app)
 '''
 - user password, username, email verification stuff
 - forum moderation
-- likes/dislikes for posts
-- user profile? 
+- actually hash passwords
+- user profile?
 - search through posts
 - better post creation ui, post viewing ui
 '''
@@ -47,7 +49,7 @@ class posts(db.Model):
         self.imglink = imglink
         self.date = date
 
-'''class tags(db.Model): #DONT ADD TAGS YET THEYRE HARDDDD
+'''class tags(db.Model): #DONT ADD TAGS YET THEYRE HARD
     _id = db.Column("id", db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
 
@@ -64,11 +66,10 @@ class tagmap(db.Model):
         self.post_id = post_id
         self.tag_id = tag_id'''
 
-
 def verifyregister(uname, upass, uemail): #this could be better
     '''
     Checks if password, username, email strings fit within 
-    desired parameters, e.g. length.
+    desired parameters, e.g. length. might do email verification too, not sure if its working rn
     '''
     existinguser = users.query.filter_by(name=uname).first() 
     existingemail = users.query.filter_by(email=uemail).first()
@@ -84,9 +85,15 @@ def verifyregister(uname, upass, uemail): #this could be better
     if len(uname) < 4:
         flash("username must be at least 4 characters")
         return False
+    elif len(uname) > 20:
+        flash("username must be fewer than 20 characters")
+        return False
             
     if len(upass) < 7:
-        flash("Error! Password too short? get it? at least 7 characters pls")
+        flash("try a longer password. mininum 7 characters")
+        return False
+    elif len(upass) > 20:
+        flash("password must be fewer than 20 characters")
         return False
     
     print("verified new user")
@@ -105,7 +112,6 @@ def home():
     if "user" in session:
         username = session['user']
     return(render_template("main.html", username=username))
-
 
 @app.route("/feed", methods=['GET', 'POST']) 
 def feed():
@@ -155,7 +161,6 @@ def feedposts(page):
     
     return render_template("feed.html", shownposts=shownposts, intpage=intpage, backpage=backpage, forwardpage=forwardpage, mostrecent=mostrecent)
 
-
 @app.route('/pageturn', methods=['GET', 'POST'])
 def pageturn():
     banana = request.referrer
@@ -169,7 +174,6 @@ def backpageturn():
     peeledbanana = banana.split("/")
     page = (int(peeledbanana[4]) - 1) # https: /  / feed / {number}, 3 slashes
     return redirect(url_for("feedposts", page=page))
-
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -199,18 +203,16 @@ def register():
     if request.method == 'POST':
         if request.form.get('password')!=request.form.get('passwordverify'):
             flash("password no matchy")
-            return redirect(url_for("home")) # set up flash later idk but this means they gotta mismatched password
+            return redirect(url_for("home")) 
         
         uname = request.form.get('username')
         uemail = request.form.get('email')
 
         if verifyregister(uname, request.form.get('password'), uemail) == False:
-            print("user not verified")
             return redirect(url_for("home"))
             
-
         newuser = users(uname, uemail, request.form.get('password'))
-        db.session.add(newuser) #ur in
+        db.session.add(newuser) #i'm in
         db.session.commit()
 
         currentuser = users.query.filter_by(name=newuser.name).first()
@@ -219,7 +221,7 @@ def register():
         print(currentuser)
 
         return redirect(url_for("home"))
-    
+    # else:
     return(render_template("register.html"))
 
 @app.route("/logout")
