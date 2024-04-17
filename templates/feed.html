@@ -9,19 +9,20 @@
             {{ intpage }}
         </div>
         <div class="feedbackdrop">
-            {% for post in shownposts %}
-            <div class="post">
-                <div class="name">{{ post.op }}</div>
-                <div class="content">
-                    <p>
-                        <img class="postimg" src="{{ post.imglink }}" onerror="this.style.display='none'" this.src='' alt="">
-                        {{ post.content }}
-                    </p>
+            {% if shownposts %}
+                {% for post in shownposts %}
+                <div class="post">
+                    <div class="name">{{ post.op }}</div>
+                    <div class="content">
+                        <p>
+                            <img class="postimg" src="{{ post.imglink }}" onerror="this.style.display='none'" this.src='' alt="">
+                            {{ post.content }}
+                        </p>
+                    </div>
+                    <div class="date">{{ post.date }}</div>
                 </div>
-                <div class="date">{{ post.date }}</div>
-            </div>
-            {% endfor %}
-
+                {% endfor %}
+            {% endif %}
             {% if mostrecent %}
                 {% if "user" in session %}
                     {% with data=data %}

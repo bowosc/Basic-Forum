@@ -35,6 +35,9 @@ class users(db.Model):
         self.password = password
 
 class posts(db.Model):
+    '''
+    warning! turns out when you delete all the posts from the db bc you get bored and want to break things, it actually does break things. careful!
+    '''
     _id = db.Column("id", db.Integer, primary_key=True)
     op = db.Column(db.String(100))
     content = db.Column(db.String)
@@ -123,23 +126,27 @@ def feed():
 @app.route("/feed/<page>", methods=['GET', 'POST'])
 def feedposts(page):
     
-    try:
+    '''    try:
         intpage = int(page)
     except ValueError:
         flash("Try it with an integer!")
-        return redirect(url_for("feed"))
+        return redirect(url_for("feed"))'''
     
+    intpage = int(page)
     if intpage < 0:
-        return redirect(url_for("feedposts", page=0))
-    
-    ppg = int(10) # posts per page
+        intpage = int(0)
+        
+    ppg = int(10) # posts per page, int() bc trust issues
 
     offset = (ppg * intpage)
     shownposts = posts.query.order_by(posts.date.asc()).offset(offset).limit(ppg)
-    backpage = intpage - 1  # idk if this is actually used
-    forwardpage = intpage + 1  
+
 
     activepage = (int(math.ceil(posts.query.order_by(posts.date.desc()).count() / ppg)) - 1)
+    
+    if activepage < 0:
+        activepage = 0
+
     if intpage == activepage: #if this is the page with the most recent posts :) 
         mostrecent = True
     elif intpage > activepage:
@@ -160,7 +167,7 @@ def feedposts(page):
         print("post created by {userr}".format(userr=username))
         return redirect(url_for("feed"))
     
-    return render_template("feed.html", shownposts=shownposts, intpage=intpage, backpage=backpage, forwardpage=forwardpage, mostrecent=mostrecent)
+    return render_template("feed.html", shownposts=shownposts, intpage=intpage, mostrecent=mostrecent)
 
 @app.route('/pageturn', methods=['GET', 'POST'])
 def pageturn():
