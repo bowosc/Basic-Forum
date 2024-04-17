@@ -15,12 +15,10 @@ db = SQLAlchemy(app)
 
 #TODO
 '''
-- user password, username, email verification stuff
+- email verification stuff
 - forum moderation
-- actually hash passwords
 - user profile?
 - search through posts
-- better post creation ui, post viewing ui
 '''
 
 class users(db.Model):
@@ -104,7 +102,7 @@ def verifyregister(uname, upass, uemail): #this could be better
 
 def round_seconds(obj: datetime) -> datetime:
     '''
-    just a feature that should probably be in datetime already, but i've gotta do it manually :(
+    just a feature that should probably be in the datetime package already, but i've gotta do it manually :(
     '''
     if obj.microsecond >= 500_000:
         obj += timedelta(seconds=1)
@@ -125,14 +123,12 @@ def feed():
 
 @app.route("/feed/<page>", methods=['GET', 'POST'])
 def feedposts(page):
-    
-    '''    try:
+    try:
         intpage = int(page)
     except ValueError:
         flash("Try it with an integer!")
-        return redirect(url_for("feed"))'''
-    
-    intpage = int(page)
+        return redirect(url_for("feed"))
+
     if intpage < 0:
         intpage = int(0)
         
@@ -140,7 +136,6 @@ def feedposts(page):
 
     offset = (ppg * intpage)
     shownposts = posts.query.order_by(posts.date.asc()).offset(offset).limit(ppg)
-
 
     activepage = (int(math.ceil(posts.query.order_by(posts.date.desc()).count() / ppg)) - 1)
     
@@ -168,6 +163,14 @@ def feedposts(page):
         return redirect(url_for("feed"))
     
     return render_template("feed.html", shownposts=shownposts, intpage=intpage, mostrecent=mostrecent)
+
+@app.route('/userpages/<user>', methods=['GET', 'POST'])
+def userpages(user):
+    user = users.query.filter_by(name=user).first()
+    if user == None:
+        flash("No user with that name!")
+        return redirect(url_for("home"))
+    return render_template("userpage.html", user=user)
 
 @app.route('/pageturn', methods=['GET', 'POST'])
 def pageturn():
