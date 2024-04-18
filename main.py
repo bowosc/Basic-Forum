@@ -159,7 +159,7 @@ def feedposts(page):
         newpost = posts(session['user'], request.form.get('content'), request.form.get('imglink'), round_seconds(datetime.now()))
         db.session.add(newpost) 
         db.session.commit()
-        print("post created by {userr}".format(userr=username))
+        print("post created by {username}".format(username=username))
         return redirect(url_for("feed"))
     
     return render_template("feed.html", shownposts=shownposts, intpage=intpage, mostrecent=mostrecent)
@@ -167,10 +167,11 @@ def feedposts(page):
 @app.route('/userpages/<user>', methods=['GET', 'POST'])
 def userpages(user):
     user = users.query.filter_by(name=user).first()
+    postcount = posts.query.filter_by(op=user.name).count()
     if user == None:
         flash("No user with that name!")
         return redirect(url_for("home"))
-    return render_template("userpage.html", user=user)
+    return render_template("userpage.html", user=user, postcount=postcount)
 
 @app.route('/pageturn', methods=['GET', 'POST'])
 def pageturn():

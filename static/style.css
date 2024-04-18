@@ -30,13 +30,15 @@ div .feedbackdrop {
     margin: auto;
     width: 70%;
     height: auto;
-    background: rgb(224, 249, 252);
+
 }
 
 div .post {
+    border-radius: 10px;
     margin-top: 10px;
     text-align: left;
-    outline: 3px solid rgb(255, 255, 255);
+    background: rgb(224, 249, 252);
+    outline: 2px solid rgb(192, 239, 246);
     width: auto;
 }
 
@@ -45,7 +47,9 @@ div .date {
     font-size: small;
 }
 
-div .name {
+
+.name {
+    color: black;
     font-style: normal;
     font-size: medium;
     font-weight: bold;
@@ -58,14 +62,20 @@ div .content {
     font-style: normal;
     font-size: medium;
 }
+div .posttext {
+    margin-left: 7px;
+    margin-right: 7px;
+}
 
 .postimg {
     vertical-align: top;
     text-align: right;
+    float: left;
+
   
     margin-right: 15px;
-    margin-bottom: 6px;
     height: 220px;
+    max-height: 100%;
 }
 
 .pagenum{

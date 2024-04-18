@@ -12,14 +12,16 @@
             {% if shownposts %}
                 {% for post in shownposts %}
                 <div class="post">
-                    <div class="name">{{ post.op }}</div>
-                    <div class="content">
-                        <p>
-                            <img class="postimg" src="{{ post.imglink }}" onerror="this.style.display='none'" this.src='' alt="">
-                            {{ post.content }}
-                        </p>
+                    <div class="posttext">
+                        <a class="name" href="/userpages/{{ post.op }}" target=”_blank”>{{ post.op }}</a>
+                        <div class="content">
+                            <p style="overflow: hidden;">
+                                <img class="postimg" src="{{ post.imglink }}" onerror="this.style.display='none'" this.src='' alt="">
+                                {{ post.content }}
+                            </p>
+                        </div>
+                        <div class="date">{{ post.date }}</div>
                     </div>
-                    <div class="date">{{ post.date }}</div>
                 </div>
                 {% endfor %}
             {% endif %}

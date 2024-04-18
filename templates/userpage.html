@@ -2,7 +2,8 @@
 {% block title %}User Profile{% endblock %}
 {% block content %}
     <body>
-        <h3>{{ user.name }}</h3>
-        <p>User number: {{ user._id }}</p>
+        <h2>{{ user.name }}</h2>
+        <p>User ID: {{ user._id }}</p>
+        <p>Posts: {{ postcount }}</p>
     </body>
 {% endblock %}
