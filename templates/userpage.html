@@ -1,14 +1,15 @@
 {% extends "base.html"%}
-{% block title %}User Profile{% endblock %}
+{% block title %}{{ user.name }}'s Profile{% endblock %}
 {% block content %}
     <body>
         <h2>{{ user.name }}</h2>
             {% if avatarloc %}
             <img style="height: 256; width: 256;" src="{{ url_for('static', filename='/avatars/') }}{{ avatarloc }}" alt="img not found" />
-            {% else %}
-            <p> User has no Avatar set.</p>
                 {% if isme %}
-                    <p> Upload one? </p>
+                    <p></p>
+                    <p> Upload new avatar? Note: Avatar images must be .png , and will be resized to 8x8 if not already 8x8. </p>
+                    <a  target=”_blank” href=https://www.pixilart.com/draw/8x8-0a612fc3d41c517"> Need help? Create & download an 8x8 png here! </a>
+                    <p></p>
                     <form method='post' enctype='multipart/form-data'>
                         <input type='file' name='file'>
                         <input type='submit' value='Upload'>

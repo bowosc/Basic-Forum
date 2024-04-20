@@ -8,6 +8,10 @@ div .center {
     outline-width: 5px;
 }
 
+img{
+    image-rendering: pixelated;
+}
+
 .imglink {
     width: 60%;
     margin-left: 10px;

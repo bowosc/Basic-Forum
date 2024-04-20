@@ -1,8 +1,10 @@
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from datetime import timedelta, datetime
 from flask_sqlalchemy import SQLAlchemy
-import math, bcrypt, os
 from werkzeug.utils import secure_filename
+from PIL import Image
+import math, bcrypt, os, glob
+
 
 app = Flask(__name__)
 app.secret_key = ("pretendthisisarealsecretkey")
@@ -21,8 +23,11 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 #1MB
 #TODO
 '''
 - profile pics for users
+    - verify that img is 8x8
+    - default pic
 - email verification stuff
 - forum moderation
+    - only post once/ 5 sec
 - search through posts
 '''
 
@@ -176,6 +181,9 @@ def feedposts(page):
 
 @app.route('/userpages/<user>', methods=['GET', 'POST'])
 def userpages(user):
+    '''
+    idk why i didn't just call it profiles, thats really what it is. eh.
+    '''
     user = users.query.filter_by(name=user).first()
 
     if request.method == 'POST':
@@ -186,17 +194,22 @@ def userpages(user):
             return redirect(url_for("home"))
         
         file = request.files['file']
-        
+
         if file and allowed_file(file.filename):
             # check if file is a png, check that file is 8x8, check size is ok
             filename = (user.name + ".png")
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             print("file saved")
+            with Image.open("static/avatars/{filename}".format(filename=filename)) as im:
+                newsize = (8,8)
+                im = im.resize(newsize)
+                im.save("static/avatars/{filename}".format(filename=filename))
+                print("img resized to 8x8")
             return redirect(url_for('userpages', user=user.name))
 
     postcount = posts.query.filter_by(op=user.name).count()
     avatarloc = "{userr}.png".format(userr=user.name)
-    
+
     isme = False
     if user == None:
         flash("No user with that name!")
@@ -221,8 +234,6 @@ def backpageturn():
     peeledbanana = banana.split("/")
     page = (int(peeledbanana[4]) - 1) # https: /  / feed / {number}, 3 slashes
     return redirect(url_for("feedposts", page=page))
-
-
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
