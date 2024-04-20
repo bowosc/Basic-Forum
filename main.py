@@ -1,23 +1,28 @@
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from datetime import timedelta, datetime
 from flask_sqlalchemy import SQLAlchemy
-import math, bcrypt
+import math, bcrypt, os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = ("pretendthisisarealsecretkey")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.sqlite3'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 app.permanent_session_lifetime = timedelta(hours=5)
-
 db = SQLAlchemy(app)
+
+UPLOAD_FOLDER = 'static/avatars'
+ALLOWED_EXTENSIONS = {'png'} 
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 #1MB
+
 
 #TODO
 '''
+- profile pics for users
 - email verification stuff
 - forum moderation
-- user profile?
 - search through posts
 '''
 
@@ -31,6 +36,7 @@ class users(db.Model):
         self.name = name
         self.email = email
         self.password = password
+
 
 class posts(db.Model):
     '''
@@ -108,6 +114,10 @@ def round_seconds(obj: datetime) -> datetime:
         obj += timedelta(seconds=1)
     return obj.replace(microsecond=0)
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route("/")
 def home():
     username = "Not signed in"
@@ -167,11 +177,36 @@ def feedposts(page):
 @app.route('/userpages/<user>', methods=['GET', 'POST'])
 def userpages(user):
     user = users.query.filter_by(name=user).first()
+
+    if request.method == 'POST':
+        if request.files['file']:
+            print("file good")
+        else:
+            flash("Don't be stupid, upload an actual file")
+            return redirect(url_for("home"))
+        
+        file = request.files['file']
+        
+        if file and allowed_file(file.filename):
+            # check if file is a png, check that file is 8x8, check size is ok
+            filename = (user.name + ".png")
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            print("file saved")
+            return redirect(url_for('userpages', user=user.name))
+
     postcount = posts.query.filter_by(op=user.name).count()
+    avatarloc = "{userr}.png".format(userr=user.name)
+    
+    isme = False
     if user == None:
         flash("No user with that name!")
         return redirect(url_for("home"))
-    return render_template("userpage.html", user=user, postcount=postcount)
+    elif 'user' in session:
+        if user.name == session['user']:
+            isme = True
+
+
+    return render_template("userpage.html", user=user, postcount=postcount, avatarloc=avatarloc, isme=isme)
 
 @app.route('/pageturn', methods=['GET', 'POST'])
 def pageturn():
@@ -186,6 +221,8 @@ def backpageturn():
     peeledbanana = banana.split("/")
     page = (int(peeledbanana[4]) - 1) # https: /  / feed / {number}, 3 slashes
     return redirect(url_for("feedposts", page=page))
+
+
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():

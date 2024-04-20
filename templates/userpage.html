@@ -3,6 +3,18 @@
 {% block content %}
     <body>
         <h2>{{ user.name }}</h2>
+            {% if avatarloc %}
+            <img style="height: 256; width: 256;" src="{{ url_for('static', filename='/avatars/') }}{{ avatarloc }}" alt="img not found" />
+            {% else %}
+            <p> User has no Avatar set.</p>
+                {% if isme %}
+                    <p> Upload one? </p>
+                    <form method='post' enctype='multipart/form-data'>
+                        <input type='file' name='file'>
+                        <input type='submit' value='Upload'>
+                    </form>
+                {% endif %}
+            {% endif %}
         <p>User ID: {{ user._id }}</p>
         <p>Posts: {{ postcount }}</p>
     </body>
