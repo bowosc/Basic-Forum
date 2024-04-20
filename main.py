@@ -24,7 +24,6 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 #1MB
 #TODO
 '''
 - profile pics for users
-    - default pic
     - pics are actually shown on posts ideally next to or below names
 - email verification stuff
 - forum moderation
@@ -289,7 +288,7 @@ def register():
         currentuser = users.query.filter_by(name=newuser.name).first()
         session["user"] = currentuser.name #welcome to the sesh
         
-        # setting user avatar as the default
+        # setting user avatar as the default. this could be a function but idc 
         target = "static/avatars/"
         newfilename = "{uname}.png".format(uname=uname)
         copyfile("static/avatars/default.png", os.path.join(target, newfilename)) # never let the user create a profile named "default". see verifyregister function.

@@ -13,6 +13,7 @@
                 {% for post in shownposts %}
                 <div class="post">
                     <div class="posttext">
+                        <img style="height: 48; width: 48;" src="{{ url_for('static', filename='/avatars/') }}{{ post.op }}.png" alt="img not found" />
                         <a class="name" href="/userpages/{{ post.op }}" target=”_blank”>{{ post.op }}</a>
                         <div class="content">
                             <p style="overflow: hidden;">
