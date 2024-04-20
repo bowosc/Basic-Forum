@@ -3,6 +3,7 @@ from datetime import timedelta, datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from PIL import Image
+from shutil import copyfile
 import math, bcrypt, os, glob
 
 
@@ -23,11 +24,12 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 #1MB
 #TODO
 '''
 - profile pics for users
-    - verify that img is 8x8
     - default pic
+    - pics are actually shown on posts ideally next to or below names
 - email verification stuff
 - forum moderation
     - only post once/ 5 sec
+    - admin role with post deletion perms
 - search through posts
 '''
 
@@ -109,6 +111,10 @@ def verifyregister(uname, upass, uemail): #this could be better
         flash("password must be fewer than 20 characters")
         return False
     
+    if uname == "default" or uname =="[null]":
+        flash("nice try. pick a different name.")
+        return False
+
     print("verified new user")
 
 def round_seconds(obj: datetime) -> datetime:
@@ -120,6 +126,9 @@ def round_seconds(obj: datetime) -> datetime:
     return obj.replace(microsecond=0)
 
 def allowed_file(filename):
+    '''
+    stops rude users from fricking with my files with sketchy file names that grab more data than they should have
+    '''
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -186,7 +195,7 @@ def userpages(user):
     '''
     user = users.query.filter_by(name=user).first()
 
-    if request.method == 'POST':
+    if request.method == 'POST': # setting user avatar from uploaded file
         if request.files['file']:
             print("file good")
         else:
@@ -267,19 +276,25 @@ def register():
         
         uname = request.form.get('username')
         uemail = request.form.get('email')
-        hashedupass = bcrypt.hashpw(str.encode(request.form.get('password')), bcrypt.gensalt())
+        hashedupass = bcrypt.hashpw(str.encode(request.form.get('password')), bcrypt.gensalt()) #bcrip v bbluds
 
         if verifyregister(uname, request.form.get('password'), uemail) == False:
             return redirect(url_for("home"))
         
+
         newuser = users(uname, uemail, hashedupass)
         db.session.add(newuser) #i'm in
         db.session.commit()
 
         currentuser = users.query.filter_by(name=newuser.name).first()
         session["user"] = currentuser.name #welcome to the sesh
-        flash("loggied in, account created. welcome!")
-
+        
+        # setting user avatar as the default
+        target = "static/avatars/"
+        newfilename = "{uname}.png".format(uname=uname)
+        copyfile("static/avatars/default.png", os.path.join(target, newfilename)) # never let the user create a profile named "default". see verifyregister function.
+        
+        flash('loggied in, account created. You can set your avatar on your "profile" page. welcome!')
         return redirect(url_for("home"))
     # else:
     return(render_template("register.html"))
@@ -294,7 +309,7 @@ def logout():
 def page_not_found(e):
     return render_template("404.html", attempt=e)
 
-if __name__ == "__main__":
+if __name__ == "__main__": #if we're actually in this file (and not in the dream)
     with app.app_context():
         db.create_all()
     app.run(debug=True)
