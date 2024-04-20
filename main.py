@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from PIL import Image
 from shutil import copyfile
-import math, bcrypt, os, glob
+import math, bcrypt, os, time
 
 
 app = Flask(__name__)
@@ -12,7 +12,7 @@ app.secret_key = ("pretendthisisarealsecretkey")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.sqlite3'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.permanent_session_lifetime = timedelta(hours=5)
+app.permanent_session_lifetime = timedelta(hours=2)
 db = SQLAlchemy(app)
 
 UPLOAD_FOLDER = 'static/avatars'
@@ -23,13 +23,16 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 #1MB
 
 #TODO
 '''
-- profile pics for users
-    - pics are actually shown on posts ideally next to or below names
 - email verification stuff
 - forum moderation
     - only post once/ 5 sec
     - admin role with post deletion perms
 - search through posts
+- FRONTEND MAKE LOOK NOT UGLY
+    - dark mode
+    - login page, register page
+    - functional home page (app.route(home), not feed)
+    - top menu bar
 '''
 
 class users(db.Model):
@@ -177,11 +180,19 @@ def feedposts(page):
         if "user" not in session:
             flash("You must log in to post!")
             return redirect(url_for("login"))
-        else:
-            username = session['user']
+        
+        if 'lastpost' in session:
+            if abs(int(session['lastpost'])-int(time.time())) <= 5: 
+                flash("Please wait at least 5 seconds between posts!")
+                print(int(session['lastpost'])-int(time.time()))
+                return redirect(url_for("feed"))
+            print(session['lastpost']-time.time())
+        
+        username = session['user']
         newpost = posts(session['user'], request.form.get('content'), request.form.get('imglink'), round_seconds(datetime.now()))
         db.session.add(newpost) 
         db.session.commit()
+        session['lastpost'] = time.time()
         print("post created by {username}".format(username=username))
         return redirect(url_for("feed"))
     
