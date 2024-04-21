@@ -19,6 +19,8 @@ import math, bcrypt, os, time
     - top menu bar
 '''
 
+ppg = int(10) # posts per page, int() bc trust issues
+
 app = Flask(__name__)
 app.secret_key = ("pretendthisisarealsecretkey")
 
@@ -132,7 +134,7 @@ def search():
 @app.route("/feed", methods=['GET', 'POST']) 
 def feed():
     postcount = posts.query.order_by(posts.date.desc()).count()
-    postcount = int(math.ceil(postcount / 10.0)) - 1 # get the most recent page of posts
+    postcount = int(math.ceil(postcount / ppg)) - 1 # get the most recent page of posts
     return redirect(url_for("feedposts", page=postcount))
 
 @app.route("/feed/<page>", methods=['GET', 'POST'])
@@ -154,7 +156,6 @@ def feedposts(page):
     if intpage < 0:
         intpage = int(0)
         
-    ppg = int(10) # posts per page, int() bc trust issues
     offset = (ppg * intpage)
     shownposts = posts.query.order_by(posts.date.asc()).offset(offset).limit(ppg)
     activepage = (int(math.ceil(posts.query.order_by(posts.date.desc()).count() / ppg)) - 1)
@@ -233,18 +234,30 @@ def userpages(user):
 
     return render_template("userpage.html", user=user, postcount=postcount, avatarloc=avatarloc, isme=isme)
 
-@app.route('/removepost/<postid>', methods=['GET', 'POST'])
+@app.route('/removepost/<postid>')
 def removepost(postid):
     activeuser = users.query.filter_by(name=session['user']).first()
     if activeuser.isadmin == True: # ofc only admins should be able to do this
         print(posts.query.filter_by(_id=postid).first().content + " was removed by " + session['user'])
-        #posts.query.filter_by(_id=postid).first().delete() # go hardcore 
+        #posts.query.filter_by(_id=postid).first().delete() # go hardcore - note that this will screw up findpost and the id system, so don't do this lol
         posts.query.filter_by(_id=postid).first().content = "[POST REMOVED BY ADMINISTRATOR]"
         posts.query.filter_by(_id=postid).first().imglink = "https://www.ducatiforum.co.uk/attachments/image-jpeg.69776/"
         db.session.commit()
         return redirect(url_for("feed"))
     flash("nice try")       
     return redirect(url_for("home"))
+
+@app.route('/findpost/<postid>')
+def findpost(postid):
+    postcount = posts.query.order_by(posts.date.desc()).count()
+    if int(postcount)==int(postid):
+        print("equal stuff")
+        return redirect(url_for('feed'))
+    else:
+        targetpage = int(math.ceil((int(postcount)-int(postid)) / ppg))-1
+    if targetpage < 0:
+        targetpage = int(0)
+    return redirect(url_for("feedposts", page=targetpage))
 
 @app.route('/pageturn', methods=['GET', 'POST'])
 def pageturn():

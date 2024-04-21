@@ -3,13 +3,13 @@
 {% block content %}
 <body>
     <div class="center">
-        <input type="text" class="live-search-box" placeholder="Search through posts" /> 
+        <input type="text" class="live-search-box" placeholder="Search through posts" style="margin-top: 10px;"/> 
                     
         <ul class="live-search-list" type="None" style="padding: 0;"> 
             {% for post in postlist %}
             <div class="post" style="width: 95%; margin-left: 13px;">
                     <li>
-                        <a href="/feed" class="fill-div" style="text-decoration: none;"> 
+                        <a href="/findpost/{{ post._id }}" class="fill-div" style="text-decoration: none;"> 
                         <div class="posttext">
                             <div class="truncatedcontent" style="float:right;">
                                 <p style=" 
