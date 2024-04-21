@@ -24,6 +24,11 @@ img{
     margin: 0 auto;
 }
 
+button .removepost {
+    background-color: #f44336;
+    size: 10%;
+}
+
 .postsubmit {
     width:95%;
     margin-bottom: 10px;

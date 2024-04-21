@@ -22,6 +22,11 @@
                             </p>
                         </div>
                         <div class="date">{{ post.date }}</div>
+                        {% if adminpage %}
+                            <form action="/removepost/{{ post._id }}" method="post">
+                                <button class="removepostbutton" name="removepost" type="submit"> REMOVE </button>
+                            </form>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}

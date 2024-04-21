@@ -25,10 +25,9 @@ app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 #1MB
 '''
 - email verification stuff
 - forum moderation
-    - only post once/ 5 sec
     - admin role with post deletion perms
-- search through posts
-- FRONTEND MAKE LOOK NOT UGLY
+- search feature for posts
+- look ugly, the frontend should not.
     - dark mode
     - login page, register page
     - functional home page (app.route(home), not feed)
@@ -40,12 +39,13 @@ class users(db.Model):
     name = db.Column(db.String(100), unique=True) #not using a string name for these bc it just uses the var name as a default
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
+    isadmin = db.Column(db.Boolean)
 
     def __init__(self, name, email, password):
         self.name = name
         self.email = email
         self.password = password
-
+        self.isadmin = False
 
 class posts(db.Model):
     '''
@@ -63,22 +63,6 @@ class posts(db.Model):
         self.imglink = imglink
         self.date = date
 
-'''class tags(db.Model): #DONT ADD TAGS YET THEYRE HARD
-    _id = db.Column("id", db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
-
-    def __init__(self, name):
-        self.name = name
-
-# now THIS is podracing
-class tagmap(db.Model):
-    _id = db.Column("id", db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer)
-    tag_id = db.Column(db.Integer)
-
-    def __init__(self, post_id, tag_id):
-        self.post_id = post_id
-        self.tag_id = tag_id'''
 
 def verifyregister(uname, upass, uemail): #this could be better
     '''
@@ -134,6 +118,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 @app.route("/")
 def home():
     username = "Not signed in"
@@ -155,17 +140,20 @@ def feedposts(page):
         flash("Try it with an integer!")
         return redirect(url_for("feed"))
 
+    activeuser = users.query.filter_by(name=session['user']).first()
+    if activeuser.isadmin == True:
+        adminpage = True
+    else:
+        adminpage = False
+
     if intpage < 0:
         intpage = int(0)
         
     ppg = int(10) # posts per page, int() bc trust issues
-
     offset = (ppg * intpage)
     shownposts = posts.query.order_by(posts.date.asc()).offset(offset).limit(ppg)
-
     activepage = (int(math.ceil(posts.query.order_by(posts.date.desc()).count() / ppg)) - 1)
-    
-    if activepage < 0:
+    if activepage < 0: # this would be seperated from the above four lines if the variables didn't look nice together
         activepage = 0
 
     if intpage == activepage: #if this is the page with the most recent posts :) 
@@ -196,7 +184,7 @@ def feedposts(page):
         print("post created by {username}".format(username=username))
         return redirect(url_for("feed"))
     
-    return render_template("feed.html", shownposts=shownposts, intpage=intpage, mostrecent=mostrecent)
+    return render_template("feed.html", shownposts=shownposts, intpage=intpage, mostrecent=mostrecent, adminpage=adminpage)
 
 @app.route('/userpages/<user>', methods=['GET', 'POST'])
 def userpages(user):
@@ -239,6 +227,15 @@ def userpages(user):
 
 
     return render_template("userpage.html", user=user, postcount=postcount, avatarloc=avatarloc, isme=isme)
+
+@app.route('/removepost', methods=['GET', 'POST'])
+def removepost(postid):
+    activeuser = users.query.filter_by(name=session['user']).first()
+    if activeuser.isadmin == True:
+        print(posts.query.filter_by(_id=postid).first())
+        redirect(url_for("feed"))
+    flash("nice try")       
+    return redirect(url_for("home"))
 
 @app.route('/pageturn', methods=['GET', 'POST'])
 def pageturn():
