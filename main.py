@@ -1,6 +1,7 @@
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from datetime import timedelta, datetime
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import update
 from werkzeug.utils import secure_filename
 from PIL import Image
 from shutil import copyfile
@@ -228,12 +229,16 @@ def userpages(user):
 
     return render_template("userpage.html", user=user, postcount=postcount, avatarloc=avatarloc, isme=isme)
 
-@app.route('/removepost', methods=['GET', 'POST'])
+@app.route('/removepost/<postid>', methods=['GET', 'POST'])
 def removepost(postid):
     activeuser = users.query.filter_by(name=session['user']).first()
     if activeuser.isadmin == True:
-        print(posts.query.filter_by(_id=postid).first())
-        redirect(url_for("feed"))
+        print(posts.query.filter_by(_id=postid).first().content + " was removed by " + session['user'])
+        #posts.query.filter_by(_id=postid).first().delete() # go hardcore 
+        posts.query.filter_by(_id=postid).first().content = "[POST REMOVED BY ADMINISTRATOR]"
+        posts.query.filter_by(_id=postid).first().imglink = "https://www.ducatiforum.co.uk/attachments/image-jpeg.69776/"
+        db.session.commit()
+        return redirect(url_for("feed"))
     flash("nice try")       
     return redirect(url_for("home"))
 
