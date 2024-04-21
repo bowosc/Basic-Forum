@@ -11,7 +11,8 @@ Feel free to comment any feedback!
 - User avatar/profile-pic uploading, verifying and compressing system.
 - Password hashing, which -this time- actually works :)
 - Administrator user tag & moderating powers, including censoring and removing posts.
-+ more!
+
+Plus more!
   
 
 
