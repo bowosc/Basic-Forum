@@ -1,11 +1,22 @@
 div .center {
     text-align: center;
     margin: auto;
-    width: 40%;
-    height: 100%;
+    width: 550px;
+    height: auto;
     background: rgb(194, 247, 255);
-    outline: rgb(153, 234, 252);
-    outline-width: 5px;
+
+}
+
+.truncatedcontent {
+    vertical-align: top;
+    margin-top: 6px;
+    margin-left: 10px;
+    font-style: normal;
+    font-size: medium;
+    width: 80%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 img{

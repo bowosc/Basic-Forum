@@ -1,0 +1,67 @@
+{% extends "base.html"%}
+{% block title %}Search Posts{% endblock %}
+{% block content %}
+<body>
+    <div class="center">
+        <input type="text" class="live-search-box" placeholder="Search through posts" /> 
+                    
+        <ul class="live-search-list" type="None" style="padding: 0;"> 
+            {% for post in postlist %}
+            <div class="post" style="width: 95%; margin-left: 13px;">
+                    <li>
+                        <a href="/feed" class="fill-div" style="text-decoration: none;"> 
+                        <div class="posttext">
+                            <div class="truncatedcontent" style="float:right;">
+                                <p style=" 
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                ">
+                                    {{ post.content }}
+                                </p>
+                            </div>
+                            <img style="height: 48; width: 48;" src="{{ url_for('static', filename='/avatars/') }}{{ post.op }}.png" alt="img not found" />
+                            <p class="name">{{ post.op }}</p>
+                            <div class="date">{{ post.date }}</div>
+                            {% if adminpage %}
+                                <form action="/removepost/{{ post._id }}" method="post">
+                                    <button class="removepostbutton" name="removepost" type="submit"> REMOVE </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                        </a>
+                    </li> 
+            </div>
+            {% endfor %}
+        </ul> 
+        <p style="color: rgb(159, 159, 255); font-style: italic;"> your search ends here </p>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>           
+        <script type="text/javascript"> 
+                    jQuery(document).ready(function($){ 
+                
+                $('.live-search-list li').each(function(){ 
+                $(this).attr('data-search-term', $(this).text().toLowerCase()); 
+                }); 
+                
+                $('.live-search-box').on('keyup', function(){ 
+                
+                var searchTerm = $(this).val().toLowerCase(); 
+                
+                    $('.live-search-list li').each(function(){ 
+                
+                        if ($(this).filter('[data-search-term *= ' + searchTerm + ']').length > 0 || searchTerm.length < 1) { 
+                            $(this).show(); 
+                        } else { 
+                            $(this).hide(); 
+                        } 
+                
+                    }); 
+                
+                }); 
+                
+                }); 
+        </script> 
+    </div>
+</body>
+{% endblock %}

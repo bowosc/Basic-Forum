@@ -7,6 +7,17 @@ from PIL import Image
 from shutil import copyfile
 import math, bcrypt, os, time
 
+#TODO
+'''
+- email verification stuff
+- search feature for posts
+    - link to specific posts when found
+- look ugly, the frontend should not.
+    - dark mode?
+    - login page, register page
+    - functional home page (app.route(home), not feed)
+    - top menu bar
+'''
 
 app = Flask(__name__)
 app.secret_key = ("pretendthisisarealsecretkey")
@@ -20,20 +31,6 @@ UPLOAD_FOLDER = 'static/avatars'
 ALLOWED_EXTENSIONS = {'png'} 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 #1MB
-
-
-#TODO
-'''
-- email verification stuff
-- forum moderation
-    - admin role with post deletion perms
-- search feature for posts
-- look ugly, the frontend should not.
-    - dark mode
-    - login page, register page
-    - functional home page (app.route(home), not feed)
-    - top menu bar
-'''
 
 class users(db.Model):
     _id = db.Column("id", db.Integer, primary_key=True)
@@ -127,6 +124,11 @@ def home():
         username = session['user']
     return(render_template("main.html", username=username))
 
+@app.route("/search", methods=['GET', 'POST'])
+def search():
+    postlist = posts.query.order_by(posts.date.desc()).all()
+    return(render_template("search.html", postlist=postlist))
+
 @app.route("/feed", methods=['GET', 'POST']) 
 def feed():
     postcount = posts.query.order_by(posts.date.desc()).count()
@@ -141,11 +143,13 @@ def feedposts(page):
         flash("Try it with an integer!")
         return redirect(url_for("feed"))
 
-    activeuser = users.query.filter_by(name=session['user']).first()
-    if activeuser.isadmin == True:
-        adminpage = True
-    else:
-        adminpage = False
+    adminpage = False
+    if 'user' in session:
+        activeuser = users.query.filter_by(name=session['user']).first()
+        if activeuser.isadmin == True:
+            adminpage = True
+        
+            
 
     if intpage < 0:
         intpage = int(0)
@@ -232,7 +236,7 @@ def userpages(user):
 @app.route('/removepost/<postid>', methods=['GET', 'POST'])
 def removepost(postid):
     activeuser = users.query.filter_by(name=session['user']).first()
-    if activeuser.isadmin == True:
+    if activeuser.isadmin == True: # ofc only admins should be able to do this
         print(posts.query.filter_by(_id=postid).first().content + " was removed by " + session['user'])
         #posts.query.filter_by(_id=postid).first().delete() # go hardcore 
         posts.query.filter_by(_id=postid).first().content = "[POST REMOVED BY ADMINISTRATOR]"
