@@ -10,13 +10,12 @@ import math, bcrypt, os, time
 #TODO
 '''
 - email verification stuff
-- search feature for posts
-    - link to specific posts when found
 - look ugly, the frontend should not.
     - dark mode?
     - login page, register page
     - functional home page (app.route(home), not feed)
     - top menu bar
+    - posts look more like forum posts, name/avatar in one div and post content and image in another parallel div?
 '''
 
 ppg = int(10) # posts per page, int() bc trust issues

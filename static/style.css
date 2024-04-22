@@ -7,6 +7,12 @@ div .center {
 
 }
 
+.cutofftext {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .truncatedcontent {
     vertical-align: top;
     margin-top: 6px;
@@ -91,7 +97,6 @@ div .posttext {
 .postimg {
     vertical-align: top;
     text-align: right;
-    float: left;
 
   
     margin-right: 15px;
