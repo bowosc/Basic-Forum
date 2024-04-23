@@ -12,7 +12,9 @@ Feel free to comment any feedback!
 - Feed page generation, editable posts-per-page variable. 
 - User avatar/profile-pic uploading, verifying and compressing system.
 - Password hashing, which -this time- actually works :)
-- Administrator user tag & moderating powers, including censoring and removing posts.
+- Search through posts
+- Administrator user & moderating powers for specific accounts, including censoring and removing posts.
+
 
 Plus more!
   
