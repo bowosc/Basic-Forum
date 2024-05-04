@@ -4,7 +4,6 @@ Built with 100% Free-Range Flask Python! (and HTML and a bunch of python modules
 
 This is just a fun little project that I had a good time putting together. 
 
-Feel free to comment any feedback! 
 
 # Features:
 - User account creation and sign-in, stored using an SQLAlchemy database.
